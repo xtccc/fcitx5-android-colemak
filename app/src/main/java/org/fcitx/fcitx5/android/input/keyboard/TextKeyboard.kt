@@ -34,25 +34,25 @@ class TextKeyboard(
             listOf(
                 AlphabetKey("Q", "1"),
                 AlphabetKey("W", "2"),
-                AlphabetKey("E", "3"),
-                AlphabetKey("R", "4"),
-                AlphabetKey("T", "5"),
-                AlphabetKey("Y", "6"),
-                AlphabetKey("U", "7"),
-                AlphabetKey("I", "8"),
-                AlphabetKey("O", "9"),
-                AlphabetKey("P", "0")
+                AlphabetKey("F", "3"),
+                AlphabetKey("P", "4"),
+                AlphabetKey("G", "5"),
+                AlphabetKey("J", "6"),
+                AlphabetKey("L", "7"),
+                AlphabetKey("U", "8"),
+                AlphabetKey("Y", "9")
             ),
             listOf(
                 AlphabetKey("A", "@"),
-                AlphabetKey("S", "*"),
-                AlphabetKey("D", "+"),
-                AlphabetKey("F", "-"),
-                AlphabetKey("G", "="),
+                AlphabetKey("R", "*"),
+                AlphabetKey("S", "+"),
+                AlphabetKey("T", "-"),
+                AlphabetKey("D", "="),
                 AlphabetKey("H", "/"),
-                AlphabetKey("J", "#"),
-                AlphabetKey("K", "("),
-                AlphabetKey("L", ")")
+                AlphabetKey("N", "#"),
+                AlphabetKey("E", "("),
+                AlphabetKey("I", ")"),
+                AlphabetKey("O", "0")
             ),
             listOf(
                 CapsKey(),
@@ -61,7 +61,7 @@ class TextKeyboard(
                 AlphabetKey("C", "\""),
                 AlphabetKey("V", "?"),
                 AlphabetKey("B", "!"),
-                AlphabetKey("N", "~"),
+                AlphabetKey("K", "~"),
                 AlphabetKey("M", "\\"),
                 BackspaceKey()
             ),
