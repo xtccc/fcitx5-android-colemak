@@ -368,12 +368,28 @@ class AltTextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.AltText)
     }
 
     private fun applyLayout(orientation: Int) {
+        if (!hintsVisible) {
+            applyNoAltTextPosition()
+            return
+        }
         if (appearance.altText.isEmpty() && appearance.altText2.isEmpty()) {
             applyNoAltTextPosition()
             return
         }
         applyTopAltTextPosition()
         applyBottomAltText2Position()
+    }
+
+    private var hintsVisible = true
+
+    /**
+     * Toggle the Shuangpin initial/final hint labels. When hidden the single letter
+     * is centered; when shown the previous layout is restored.
+     */
+    fun setHintsVisible(visible: Boolean) {
+        if (visible == hintsVisible) return
+        hintsVisible = visible
+        applyLayout(resources.configuration.orientation)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

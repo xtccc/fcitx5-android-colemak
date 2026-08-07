@@ -49,8 +49,8 @@ class TextKeyboard(
                 AlphabetKey("S", "s", "ang"),
                 AlphabetKey("T", "t", "eng"),
                 AlphabetKey("D", "d", "ie"),
-                AlphabetKey("H", "h", "iong/ong"),
-                AlphabetKey("N", "n", "ui/ue/ve"),
+                AlphabetKey("H", "h", "ong/iong"),
+                AlphabetKey("N", "n", "ui/ue"),
                 AlphabetKey("E", "e", ""),
                 AlphabetKey("I", "sh", ""),
                 AlphabetKey("O", "o", "uo")
@@ -166,6 +166,8 @@ class TextKeyboard(
     }
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
+        val showHints = ime.languageCode.startsWith("zh")
+        textKeys.forEach { if (it is AltTextKeyView) it.setHintsVisible(showHints) }
         space.mainText.text = buildString {
             append(ime.displayName)
             ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
