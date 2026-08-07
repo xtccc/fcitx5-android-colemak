@@ -50,6 +50,10 @@ open class KeyDef(
             val altText: String,
             textSize: Float,
             /**
+             * Secondary small label, e.g. the second hint shown on the key.
+             */
+            val altText2: String = "",
+            /**
              * `Int` constants in [Typeface].
              * Can be `NORMAL`(default), `BOLD`, `ITALIC` or `BOLD_ITALIC`
              */

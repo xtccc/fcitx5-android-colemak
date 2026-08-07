@@ -32,37 +32,38 @@ class TextKeyboard(
 
         val Layout: List<List<KeyDef>> = listOf(
             listOf(
-                AlphabetKey("Q", "1"),
-                AlphabetKey("W", "2"),
-                AlphabetKey("F", "3"),
-                AlphabetKey("P", "4"),
-                AlphabetKey("G", "5"),
-                AlphabetKey("J", "6"),
-                AlphabetKey("L", "7"),
-                AlphabetKey("U", "8"),
-                AlphabetKey("Y", "9")
+                AlphabetKey("Q", "q", "ao"),
+                AlphabetKey("W", "w", "en"),
+                AlphabetKey("F", "f", "ian"),
+                AlphabetKey("P", "p", "ai"),
+                AlphabetKey("G", "g", "iang/uang"),
+                AlphabetKey("J", "j", "iu/er"),
+                AlphabetKey("L", "l", "uan"),
+                AlphabetKey("U", "zh", ""),
+                AlphabetKey("Y", "y", "in/uai"),
+                SemicolonKey()
             ),
             listOf(
-                AlphabetKey("A", "@"),
-                AlphabetKey("R", "*"),
-                AlphabetKey("S", "+"),
-                AlphabetKey("T", "-"),
-                AlphabetKey("D", "="),
-                AlphabetKey("H", "/"),
-                AlphabetKey("N", "#"),
-                AlphabetKey("E", "("),
-                AlphabetKey("I", ")"),
-                AlphabetKey("O", "0")
+                AlphabetKey("A", "ch", ""),
+                AlphabetKey("R", "r", "an"),
+                AlphabetKey("S", "s", "ang"),
+                AlphabetKey("T", "t", "eng"),
+                AlphabetKey("D", "d", "ie"),
+                AlphabetKey("H", "h", "iong/ong"),
+                AlphabetKey("N", "n", "ui/ue/ve"),
+                AlphabetKey("E", "e", ""),
+                AlphabetKey("I", "sh", ""),
+                AlphabetKey("O", "o", "uo")
             ),
             listOf(
                 CapsKey(),
-                AlphabetKey("Z", "'"),
-                AlphabetKey("X", ":"),
-                AlphabetKey("C", "\""),
-                AlphabetKey("V", "?"),
-                AlphabetKey("B", "!"),
-                AlphabetKey("K", "~"),
-                AlphabetKey("M", "\\"),
+                AlphabetKey("Z", "z", "ou"),
+                AlphabetKey("X", "x", "ia/ua"),
+                AlphabetKey("C", "c", ""),
+                AlphabetKey("V", "v", "v/ü"),
+                AlphabetKey("B", "b", "iao"),
+                AlphabetKey("K", "k", "ei"),
+                AlphabetKey("M", "m", "un"),
                 BackspaceKey()
             ),
             listOf(
@@ -246,8 +247,8 @@ class TextKeyboard(
     private fun updatePunctuationKeys() {
         textKeys.forEach {
             if (it is AltTextKeyView) {
-                it.def as KeyDef.Appearance.AltText
-                it.altText.text = transformPunctuation(it.def.altText)
+                val appearance = it.def as KeyDef.Appearance.AltText
+                it.altLabel.text = transformPunctuation(appearance.altText)
             } else {
                 it.def as KeyDef.Appearance.Text
                 it.mainText.text = it.def.displayText.let { str ->

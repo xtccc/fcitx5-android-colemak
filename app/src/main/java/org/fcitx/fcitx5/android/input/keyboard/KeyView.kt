@@ -27,7 +27,7 @@ import androidx.core.view.updateLayoutParams
 import org.fcitx.fcitx5.android.R
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.data.theme.ThemeManager
-import org.fcitx.fcitx5.android.data.theme.ThemePrefs.PunctuationPosition
+
 import org.fcitx.fcitx5.android.input.AutoScaleTextView
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Border
 import org.fcitx.fcitx5.android.input.keyboard.KeyDef.Appearance.Variant
@@ -45,7 +45,7 @@ import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.matchParent
 import splitties.views.dsl.core.view
 import splitties.views.dsl.core.wrapContent
-import splitties.views.existingOrNewId
+
 import splitties.views.imageResource
 import splitties.views.padding
 import kotlin.math.min
@@ -281,16 +281,35 @@ open class TextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.Text) 
 @SuppressLint("ViewConstructor")
 class AltTextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.AltText) :
     TextKeyView(ctx, theme, def) {
-    val altText = view(::AutoScaleTextView) {
+    /** Typed access to the [AltText] appearance fields (the inherited [def] is a [Text]). */
+    private val appearance get() = def as KeyDef.Appearance.AltText
+
+    val altLabel = view(::AutoScaleTextView) {
         isClickable = false
         isFocusable = false
         // TODO hardcoded alt text size
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10.666667f)
         setTypeface(typeface, Typeface.BOLD)
-        text = def.altText
+        text = appearance.altText
         textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
         setTextColor(
-            when (def.variant) {
+            when (appearance.variant) {
+                Variant.Normal, Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
+                Variant.Accent -> theme.accentKeyTextColor
+            }
+        )
+    }
+
+    /** Secondary (bottom) small label, e.g. the Shuangpin final hint. */
+    val altLabel2 = view(::AutoScaleTextView) {
+        isClickable = false
+        isFocusable = false
+        setTextSize(TypedValue.COMPLEX_UNIT_DIP, 10.666667f)
+        setTypeface(typeface, Typeface.BOLD)
+        text = appearance.altText2
+        textDirection = View.TEXT_DIRECTION_FIRST_STRONG_LTR
+        setTextColor(
+            when (appearance.variant) {
                 Variant.Normal, Variant.AltForeground, Variant.Alternative -> theme.altKeyTextColor
                 Variant.Accent -> theme.accentKeyTextColor
             }
@@ -299,78 +318,65 @@ class AltTextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.AltText)
 
     init {
         appearanceView.apply {
-            add(altText, lParams(wrapContent, wrapContent))
+            add(altLabel, lParams(wrapContent, wrapContent))
+            add(altLabel2, lParams(wrapContent, wrapContent))
         }
         applyLayout(resources.configuration.orientation)
     }
 
-    private fun applyTopRightAltTextPosition() {
+    /** Top label (声母): anchored near the top edge, horizontally centered. */
+    private fun applyTopAltTextPosition() {
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
             topMargin = 0
             bottomToTop = unset
-            // set
-            topToTop = parentId
-            bottomToBottom = parentId
         }
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            bottomToBottom = unset; bottomMargin = 0
-            // set
-            topToTop = parentId; topMargin = vMargin
-            leftToLeft = unset
-            rightToRight = parentId; rightMargin = hMargin + dp(4)
+        if (appearance.altText.isEmpty()) {
+            altLabel.visibility = View.GONE
+        } else {
+            altLabel.visibility = View.VISIBLE
+            altLabel.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                bottomToBottom = unset; bottomMargin = 0
+                topToTop = parentId; topMargin = vMargin
+                leftToLeft = parentId; leftMargin = 0
+                rightToRight = parentId; rightMargin = 0
+            }
         }
     }
 
-    private fun applyBottomAltTextPosition() {
-        mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
-            bottomToBottom = unset
-            // set
-            topToTop = parentId; topMargin = vMargin
-            bottomToTop = altText.existingOrNewId
+    /** Bottom label (韵母) anchored near bottom edge, horizontally centered. */
+    private fun applyBottomAltText2Position() {
+        if (appearance.altText2.isEmpty()) {
+            altLabel2.visibility = View.GONE
+            return
         }
-        altText.visibility = View.VISIBLE
-        altText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
+        altLabel2.visibility = View.VISIBLE
+        altLabel2.updateLayoutParams<ConstraintLayout.LayoutParams> {
             topToTop = unset; topMargin = 0
-            rightMargin = 0
-            // set
-            leftToLeft = parentId
-            rightToRight = parentId
-            bottomToBottom = parentId; bottomMargin = vMargin + dp(2)
+            bottomToBottom = parentId; bottomMargin = vMargin
+            leftToLeft = parentId; leftMargin = 0
+            rightToRight = parentId; rightMargin = 0
         }
     }
 
     private fun applyNoAltTextPosition() {
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
-            // reset
             topMargin = 0
             bottomToTop = unset
-            // set
-            topToTop = parentId
-            bottomToBottom = parentId
         }
-        altText.visibility = View.GONE
+        altLabel.visibility = View.GONE
+        altLabel2.visibility = View.GONE
     }
 
     private fun applyLayout(orientation: Int) {
-        when (ThemeManager.prefs.punctuationPosition.getValue()) {
-            PunctuationPosition.Bottom -> when (orientation) {
-                Configuration.ORIENTATION_LANDSCAPE -> applyTopRightAltTextPosition()
-                else -> applyBottomAltTextPosition()
-            }
-            PunctuationPosition.TopRight -> applyTopRightAltTextPosition()
-            PunctuationPosition.None -> applyNoAltTextPosition()
+        if (appearance.altText.isEmpty() && appearance.altText2.isEmpty()) {
+            applyNoAltTextPosition()
+            return
         }
+        applyTopAltTextPosition()
+        applyBottomAltText2Position()
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        if (ThemeManager.prefs.punctuationPosition.getValue() == PunctuationPosition.TopRight) {
-            return
-        }
         applyLayout(newConfig.orientation)
     }
 }

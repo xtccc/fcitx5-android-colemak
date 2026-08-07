@@ -41,23 +41,45 @@ class SymbolKey(
 
 class AlphabetKey(
     val character: String,
-    val punctuation: String,
+    /**
+     * Shuangpin initial (声母) hint shown as the top small label.
+     */
+    val shengMu: String,
+    /**
+     * Shuangpin final (韵母) hint shown as the bottom small label.
+     */
+    val yunMu: String,
     variant: Variant = Variant.Normal,
     popup: Array<Popup>? = null
 ) : KeyDef(
     Appearance.AltText(
         displayText = character,
-        altText = punctuation,
+        altText = shengMu,
+        altText2 = yunMu,
         textSize = 23f,
         variant = variant
     ),
     setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(character)),
-        Behavior.Swipe(KeyAction.FcitxKeyAction(punctuation))
+        Behavior.Press(KeyAction.FcitxKeyAction(character))
     ),
     popup ?: arrayOf(
-        Popup.AltPreview(character, punctuation),
-        Popup.Keyboard.Preset(character)
+        Popup.Preview(character)
+    )
+)
+
+class SemicolonKey : KeyDef(
+    Appearance.AltText(
+        displayText = ";",
+        altText = "",
+        altText2 = "ing",
+        textSize = 23f
+    ),
+    setOf(
+        Behavior.Press(KeyAction.FcitxKeyAction(";"))
+    ),
+    arrayOf(
+        Popup.Preview(";"),
+        Popup.Keyboard.Preset(";")
     )
 )
 
