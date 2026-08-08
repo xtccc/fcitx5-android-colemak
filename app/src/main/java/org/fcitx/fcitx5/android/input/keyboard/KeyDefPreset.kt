@@ -42,11 +42,11 @@ class SymbolKey(
 class AlphabetKey(
     val character: String,
     /**
-     * Shuangpin initial (声母) hint shown as the top small label.
+     * Shuangpin initial (声母) hint shown as the bottom small label.
      */
     val shengMu: String,
     /**
-     * Shuangpin final (韵母) hint shown as the bottom small label.
+     * Shuangpin final (韵母) hint shown as the top small label.
      */
     val yunMu: String,
     variant: Variant = Variant.Normal,
@@ -54,8 +54,8 @@ class AlphabetKey(
 ) : KeyDef(
     Appearance.AltText(
         displayText = character,
-        altText = shengMu,
-        altText2 = yunMu,
+        altText = yunMu,
+        altText2 = shengMu,
         textSize = 23f,
         variant = variant
     ),
@@ -70,8 +70,8 @@ class AlphabetKey(
 class SemicolonKey : KeyDef(
     Appearance.AltText(
         displayText = ";",
-        altText = "",
-        altText2 = "ing",
+        altText = "ing",
+        altText2 = "",
         textSize = 23f
     ),
     setOf(

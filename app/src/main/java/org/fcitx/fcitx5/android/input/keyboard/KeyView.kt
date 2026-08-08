@@ -324,7 +324,7 @@ class AltTextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.AltText)
         applyLayout(resources.configuration.orientation)
     }
 
-    /** Top label (声母): anchored near the top edge, horizontally centered. */
+    /** Top label (韵母) anchored near the top edge, horizontally centered. */
     private fun applyTopAltTextPosition() {
         mainText.updateLayoutParams<ConstraintLayout.LayoutParams> {
             topMargin = 0
@@ -343,7 +343,7 @@ class AltTextKeyView(ctx: Context, theme: Theme, def: KeyDef.Appearance.AltText)
         }
     }
 
-    /** Bottom label (韵母) anchored near bottom edge, horizontally centered. */
+    /** Bottom label (声母) anchored near bottom edge, horizontally centered. */
     private fun applyBottomAltText2Position() {
         if (appearance.altText2.isEmpty()) {
             altLabel2.visibility = View.GONE
