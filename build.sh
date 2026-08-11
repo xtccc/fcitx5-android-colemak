@@ -13,6 +13,9 @@
 # 签名（release 需要）：
 #   默认从 ~/.keystores/ 读取；可通过环境变量覆盖：
 #   SIGN_KEY_FILE / SIGN_KEY_PWD / SIGN_KEY_ALIAS / KEY_PWD_FILE
+#
+# ABI：
+#   默认只编译 arm64-v8a；可通过 BUILD_ABI 环境变量覆盖（如 BUILD_ABI=x86_64）
 
 set -euo pipefail
 
@@ -43,6 +46,7 @@ nix_dev_gradle() {
         SIGN_KEY_FILE="$KEY_FILE" \
         SIGN_KEY_PWD="$SIGN_KEY_PWD" \
         SIGN_KEY_ALIAS="$KEY_ALIAS" \
+        BUILD_ABI="${BUILD_ABI:-arm64-v8a}" \
         ./gradlew "$@"
 }
 
