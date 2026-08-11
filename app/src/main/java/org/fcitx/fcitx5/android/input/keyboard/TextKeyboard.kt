@@ -166,8 +166,14 @@ class TextKeyboard(
     }
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
-        val showHints = ime.languageCode.startsWith("zh")
-        textKeys.forEach { if (it is AltTextKeyView) it.setHintsVisible(showHints) }
+        // A placeholder entry (e.g. fcitx not ready or mid-switch) carries an
+        // empty language code. Skip it so the Shuangpin hints keep their
+        // previous visibility instead of being hidden by transient events.
+        val lang = ime.languageCode
+        if (lang.isNotEmpty()) {
+            val showHints = lang.startsWith("zh")
+            textKeys.forEach { if (it is AltTextKeyView) it.setHintsVisible(showHints) }
+        }
         space.mainText.text = buildString {
             append(ime.displayName)
             ime.subMode.run { label.ifEmpty { name.ifEmpty { null } } }?.let { append(" ($it)") }
