@@ -123,7 +123,6 @@
     <string name="punctuation_pos_bottom">底部（僅限直向）</string>
     <string name="punctuation_pos_top_right">右上</string>
     <string name="punctuation_pos_none">無</string>
-    <string name="expand_toolbar_by_default">預設展開工具列</string>
     <string name="popup_on_key_press">按鍵時彈出顯示字元</string>
     <string name="disable_animation">停用動畫</string>
     <string name="import_from_file">從檔案匯入…</string>
@@ -292,9 +291,6 @@
     <string name="hide_candidates_list">隱藏選字列表</string>
     <string name="switch_to_voice_input">切換到語音輸入</string>
     <string name="hide_keyboard">隱藏鍵盤</string>
-    <string name="private_mode">隱私模式（點擊以切換工具欄）</string>
-    <string name="hide_toolbar">隱藏工具列</string>
-    <string name="expand_toolbar">展開工具列</string>
     <string name="back_to_keyboard">返回鍵盤</string>
     <string name="backspace">退格</string>
     <string name="move_cursor_up">向上移動游標</string>

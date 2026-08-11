@@ -77,7 +77,6 @@
     <string name="navbar_bkg_color_only">Seguir color de teclado</string>
     <string name="navbar_bkg_full">Imagen de fondo de teclado</string>
     <string name="punctuation_position">Posición de puntuación</string>
-    <string name="expand_toolbar_by_default">Expandir barra de htas. de manera predeterminada</string>
     <string name="disable_animation">Desactivar animación</string>
     <string name="import_from_file">Importar desde archivo...</string>
     <string name="light_mode_theme">Tema en modo claro</string>

@@ -26,7 +26,6 @@ import org.fcitx.fcitx5.android.input.bar.ui.idle.NumberRow
 import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import splitties.dimensions.dp
-import splitties.views.dsl.constraintlayout.after
 import splitties.views.dsl.constraintlayout.before
 import splitties.views.dsl.constraintlayout.centerVertically
 import splitties.views.dsl.constraintlayout.constraintLayout
@@ -39,7 +38,6 @@ import splitties.views.dsl.core.add
 import splitties.views.dsl.core.lParams
 import splitties.views.dsl.core.frameLayout
 import splitties.views.dsl.core.matchParent
-import splitties.views.imageResource
 import timber.log.Timber
 
 class IdleUi(
@@ -58,21 +56,8 @@ class IdleUi(
 
     private val disableAnimation by AppPrefs.getInstance().advanced.disableAnimation
 
-    private var inPrivate = false
-
     private val translateDirection by lazy {
         if (ctx.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_LTR) 1f else -1f
-    }
-
-    private val menuButtonRotation
-        get() = when {
-            inPrivate -> 0f
-            currentState == State.Toolbar -> 90f * translateDirection
-            else -> -90f * translateDirection
-        }
-
-    val menuButton = ToolButton(ctx, R.drawable.ic_baseline_expand_more_24, theme).apply {
-        iconRotation = menuButtonRotation
     }
 
     val hideKeyboardButton = ToolButton(ctx, R.drawable.ic_baseline_arrow_drop_down_24, theme)
@@ -115,16 +100,12 @@ class IdleUi(
 
     private val idleBody = constraintLayout {
         val size = dp(KawaiiBarComponent.HEIGHT)
-        add(menuButton, lParams(size, size) {
-            startOfParent()
-            centerVertically()
-        })
         add(hideKeyboardButton, lParams(size, size) {
             endOfParent()
             centerVertically()
         })
         add(animator, lParams(matchConstraints, matchParent) {
-            after(menuButton)
+            startOfParent()
             before(hideKeyboardButton)
             centerVertically()
         })
@@ -133,42 +114,6 @@ class IdleUi(
     override val root = frameLayout {
         add(idleBody, lParams(matchParent, matchParent))
         add(numberRow, lParams(matchParent, matchParent))
-    }
-
-    fun privateMode(activate: Boolean = true) {
-        if (activate == inPrivate) return
-        inPrivate = activate
-        updateMenuButtonIcon()
-        updateMenuButtonContentDescription()
-        updateMenuButtonRotation(instant = true)
-    }
-
-    private fun updateMenuButtonIcon() {
-        menuButton.setIcon(
-            if (inPrivate) R.drawable.ic_view_private
-            else R.drawable.ic_baseline_expand_more_24
-        )
-    }
-
-    private fun updateMenuButtonContentDescription() {
-        menuButton.contentDescription = when {
-            inPrivate -> ctx.getString(R.string.private_mode)
-            currentState == State.Toolbar -> ctx.getString(R.string.hide_toolbar)
-            else -> ctx.getString(R.string.expand_toolbar)
-        }
-    }
-
-    private fun updateMenuButtonRotation(instant: Boolean = false) {
-        val targetRotation = menuButtonRotation
-        menuButton.apply {
-            if (targetRotation == iconRotation) return
-            iconAnimate().cancel()
-            if (!instant && !disableAnimation) {
-                iconAnimate().setDuration(200L).rotation(targetRotation)
-            } else {
-                iconRotation = targetRotation
-            }
-        }
     }
 
     fun setHideKeyboardIsVoiceInput(isVoiceInput: Boolean, callback: View.OnClickListener) {
@@ -243,7 +188,5 @@ class IdleUi(
             popup.dismissAll()
         }
         currentState = state
-        updateMenuButtonContentDescription()
-        updateMenuButtonRotation(instant = !fromUser)
     }
 }
