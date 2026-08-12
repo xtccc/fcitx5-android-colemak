@@ -108,6 +108,9 @@ class HorizontalCandidateComponent :
                 super.onBindViewHolder(holder, position)
                 holder.itemView.minimumWidth = layoutMinWidth
                 holder.itemView.setOnClickListener {
+                    // scroll back to the beginning right away, so the next candidate list
+                    // starts from the first page instead of the previous scroll position
+                    layoutManager.scrollToPosition(0)
                     fcitx.launchOnReady { it.select(holder.idx) }
                 }
                 holder.itemView.setOnLongClickListener {
@@ -180,6 +183,10 @@ class HorizontalCandidateComponent :
             }
         }
         adapter.updateTotal(total)
+        // scroll back to the beginning right away, so the old candidate list doesn't
+        // linger at the previous scroll position while the refreshed list is loading.
+        // `resetScrollPending` below re-asserts the position after the new list is presented.
+        layoutManager.scrollToPosition(0)
         // ask to scroll back once the refreshed list is presented (see resetScrollPending)
         resetScrollPending = true
         pagingSubmitJob?.cancel()
@@ -192,7 +199,10 @@ class HorizontalCandidateComponent :
                     // Load a small batch ahead of time for smooth scrolling but avoid
                     // fetching the whole candidate list at once.
                     prefetchDistance = CANDIDATES_PAGE_SIZE / 2,
-                    maxSize = CANDIDATES_PAGE_SIZE * 8,
+                    // Keep all loaded pages: evicting pages would shift adapter positions
+                    // away from global candidate indices, making `select(holder.idx)` pick
+                    // the wrong candidate once the user scrolls past the limit.
+                    maxSize = PagingConfig.MAX_SIZE_UNBOUNDED,
                     enablePlaceholders = false
                 ),
                 pagingSourceFactory = {
