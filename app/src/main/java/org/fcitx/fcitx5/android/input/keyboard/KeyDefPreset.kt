@@ -70,16 +70,17 @@ class AlphabetKey(
 class SemicolonKey : KeyDef(
     Appearance.AltText(
         displayText = ";",
-        altText = "ing",
+        altText = "ing `",
         altText2 = "",
         textSize = 23f
     ),
     setOf(
-        Behavior.Press(KeyAction.FcitxKeyAction(";"))
+        Behavior.Press(KeyAction.FcitxKeyAction(";")),
+        Behavior.Swipe(KeyAction.FcitxKeyAction("`"))
     ),
     arrayOf(
         Popup.Preview(";"),
-        Popup.Keyboard.Preset(";")
+        Popup.Keyboard.Explicit(arrayOf(";", "`"))
     )
 )
 
