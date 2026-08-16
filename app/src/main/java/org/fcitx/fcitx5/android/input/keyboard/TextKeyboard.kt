@@ -166,12 +166,15 @@ class TextKeyboard(
     }
 
     override fun onInputMethodUpdate(ime: InputMethodEntry) {
-        // A placeholder entry (e.g. fcitx not ready or mid-switch) carries an
-        // empty language code. Skip it so the Shuangpin hints keep their
-        // previous visibility instead of being hidden by transient events.
+        // Show the Shuangpin hints for every IME except English, so any
+        // Chinese-capable IME (pinyin, shuangpin, table IMEs with a custom
+        // language code, ...) keeps them visible. A placeholder entry (e.g.
+        // fcitx not ready or mid-switch) carries an empty language code; skip
+        // it so the hints keep their previous visibility instead of being
+        // toggled by transient events.
         val lang = ime.languageCode
         if (lang.isNotEmpty()) {
-            val showHints = lang.startsWith("zh")
+            val showHints = !lang.startsWith("en")
             textKeys.forEach { if (it is AltTextKeyView) it.setHintsVisible(showHints) }
         }
         space.mainText.text = buildString {
