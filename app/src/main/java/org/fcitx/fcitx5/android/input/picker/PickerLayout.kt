@@ -30,9 +30,9 @@ class PickerLayout(context: Context, theme: Theme, switchKey: KeyDef) :
     class Keyboard(context: Context, theme: Theme, switchKey: KeyDef) : BaseKeyboard(
         context, theme, listOf(
             listOf(
+                switchKey,
                 LayoutSwitchKey("ABC", TextKeyboard.Name),
                 PunctuationKey(","),
-                switchKey,
                 SpaceKey(),
                 PunctuationKey("."),
                 ReturnKey()
