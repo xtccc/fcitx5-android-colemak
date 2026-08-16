@@ -79,8 +79,11 @@ class SemicolonKey : KeyDef(
         Behavior.Swipe(KeyAction.FcitxKeyAction("`"))
     ),
     arrayOf(
-        Popup.Preview(";"),
-        Popup.Keyboard.Explicit(arrayOf(";", "`"))
+        Popup.Preview("`"),
+        //Popup.Keyboard.Preset("`")
+        Popup.Keyboard.Explicit(arrayOf("`"))
+        
+
     )
 )
 
