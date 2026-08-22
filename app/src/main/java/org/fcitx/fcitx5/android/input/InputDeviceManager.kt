@@ -70,6 +70,19 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         isNullInputType = attribute.isTypeNull()
     }
 
+    private fun hasHardwareKeyboard(service: FcitxInputMethodService): Boolean {
+        val keyboard = service.resources.configuration.keyboard
+        return keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS &&
+                keyboard != android.content.res.Configuration.KEYBOARD_UNDEFINED
+    }
+
+    fun evaluateOnEvaluateInputViewShown(service: FcitxInputMethodService): Boolean {
+        if (hasHardwareKeyboard(service)) {
+            return candidatesViewMode == FloatingCandidatesMode.Disabled
+        }
+        return true
+    }
+
     /**
      * @return should use virtual keyboard
      */
@@ -77,8 +90,12 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         startedInputView = true
         isNullInputType = info.isTypeNull()
         isVirtualKeyboard = when (candidatesViewMode) {
-            FloatingCandidatesMode.SystemDefault -> service.superEvaluateInputViewShown()
-            FloatingCandidatesMode.InputDevice -> isVirtualKeyboard
+            FloatingCandidatesMode.SystemDefault -> {
+                if (hasHardwareKeyboard(service)) false else service.superEvaluateInputViewShown()
+            }
+            FloatingCandidatesMode.InputDevice -> {
+                if (hasHardwareKeyboard(service)) false else true
+            }
             FloatingCandidatesMode.Disabled -> true
         }
         return isVirtualKeyboard
@@ -109,7 +126,9 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
 
     private fun evaluateOnKeyDownInner(service: FcitxInputMethodService) {
         isVirtualKeyboard = when (candidatesViewMode) {
-            FloatingCandidatesMode.SystemDefault -> service.superEvaluateInputViewShown()
+            FloatingCandidatesMode.SystemDefault -> {
+                if (hasHardwareKeyboard(service)) false else service.superEvaluateInputViewShown()
+            }
             FloatingCandidatesMode.InputDevice -> false
             FloatingCandidatesMode.Disabled -> true
         }
