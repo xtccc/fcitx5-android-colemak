@@ -107,6 +107,8 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
             setCandidatePagingMode(if (isVirtualKeyboard) 0 else 1)
         }
         currentInputConnection?.monitorCursorAnchor(!isVirtualKeyboard)
+        contentView.findViewById<View>(android.R.id.inputArea)?.alpha =
+            if (isVirtualKeyboard) 1f else 0f
         if (isVirtualKeyboard) {
             hideStatusIcon()
         } else {
@@ -618,8 +620,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         }
     }
 
+    // always show InputView since we delegate CandidatesView's visibility to it
     @SuppressLint("MissingSuperCall")
-    override fun onEvaluateInputViewShown() = inputDeviceMgr.evaluateOnEvaluateInputViewShown(this)
+    override fun onEvaluateInputViewShown() = true
 
     fun superEvaluateInputViewShown() = super.onEvaluateInputViewShown()
 
@@ -736,6 +739,9 @@ class FcitxInputMethodService : LifecycleInputMethodService() {
         capabilityFlags = flags
         // EditorInfo may change between onStartInput and onStartInputView
         inputDeviceMgr.notifyOnStartInput(attribute)
+        inputDeviceMgr.evaluateOnStartInput(this)
+        val inputArea = contentView.findViewById<View>(android.R.id.inputArea)
+        inputArea?.alpha = if (inputDeviceMgr.isVirtualKeyboard) 1f else 0f
         Timber.d("onStartInput: initialSel=${selection.current}, restarting=$restarting")
         val isNullType = attribute.isTypeNull()
         // wait until InputContext created/activated

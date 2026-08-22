@@ -70,7 +70,14 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         isNullInputType = attribute.isTypeNull()
     }
 
-    private fun hasHardwareKeyboard(service: FcitxInputMethodService): Boolean {
+    fun evaluateOnStartInput(service: FcitxInputMethodService) {
+        if (candidatesViewMode == FloatingCandidatesMode.Disabled) return
+        if (hasHardwareKeyboard(service)) {
+            isVirtualKeyboard = false
+        }
+    }
+
+    fun hasHardwareKeyboard(service: FcitxInputMethodService): Boolean {
         val keyboard = service.resources.configuration.keyboard
         return keyboard != android.content.res.Configuration.KEYBOARD_NOKEYS &&
                 keyboard != android.content.res.Configuration.KEYBOARD_UNDEFINED
@@ -138,7 +145,9 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         if (!startedInputView) return
         isVirtualKeyboard = when (candidatesViewMode) {
             FloatingCandidatesMode.SystemDefault -> service.superEvaluateInputViewShown()
-            else -> true
+            FloatingCandidatesMode.InputDevice ->
+                if (hasHardwareKeyboard(service)) false else true
+            FloatingCandidatesMode.Disabled -> true
         }
     }
 
@@ -147,8 +156,9 @@ class InputDeviceManager(private val onChange: (Boolean) -> Unit) {
         isVirtualKeyboard = when (candidatesViewMode) {
             FloatingCandidatesMode.SystemDefault -> service.superEvaluateInputViewShown()
             FloatingCandidatesMode.InputDevice ->
-                // switch to virtual keyboard on touch screen events, otherwise preserve current mode
-                if (toolType == MotionEvent.TOOL_TYPE_FINGER || toolType == MotionEvent.TOOL_TYPE_STYLUS) true else isVirtualKeyboard
+                if (hasHardwareKeyboard(service)) false
+                else if (toolType == MotionEvent.TOOL_TYPE_FINGER || toolType == MotionEvent.TOOL_TYPE_STYLUS) true
+                else isVirtualKeyboard
             FloatingCandidatesMode.Disabled -> true
         }
     }
