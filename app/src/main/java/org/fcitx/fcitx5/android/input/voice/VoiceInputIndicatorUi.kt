@@ -32,9 +32,12 @@ class VoiceInputIndicatorUi(override val ctx: Context, private val theme: Theme)
     private val partial = textView {
         setTextColor(theme.keyTextColor)
         textSize = 16f
-        isSingleLine = true
-        ellipsize = TextUtils.TruncateAt.END
-        maxWidth = ctx.dp(280)
+        // Wrap onto several lines instead of truncating. The transcript is
+        // cumulative, so when it overflows we ellipsize at the *start* to keep
+        // the most recent words visible.
+        maxLines = 3
+        ellipsize = TextUtils.TruncateAt.START
+        maxWidth = ctx.dp(320)
         visibility = View.GONE
     }
 
