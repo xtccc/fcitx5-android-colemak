@@ -35,6 +35,7 @@ import org.fcitx.fcitx5.android.input.keyboard.CommonKeyActionListener
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.DisplayMetrics
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardHeightPercentBase.RealSize
 import org.fcitx.fcitx5.android.input.keyboard.KeyboardWindow
+import org.fcitx.fcitx5.android.input.keyboard.TextKeyboard
 import org.fcitx.fcitx5.android.input.picker.emojiPicker
 import org.fcitx.fcitx5.android.input.picker.emoticonPicker
 import org.fcitx.fcitx5.android.input.picker.symbolPicker
@@ -231,6 +232,8 @@ class InputView(
         customBackground.imageDrawable = theme.backgroundDrawable(keyBorder)
 
         keyboardView = constraintLayout {
+            // referenced by the voice input indicator, which overlays it
+            id = View.generateViewId()
             // allow MotionEvent to be delivered to keyboard while pressing on padding views.
             // although it should be default for apps targeting Honeycomb (3.0, API 11) and higher,
             // but it's not the case on some devices ... just set it here
@@ -273,14 +276,19 @@ class InputView(
             above(keyboardView)
             centerHorizontally()
         })
-        add(voiceIndicator.ui.root, lParams(wrapContent, wrapContent) {
-            above(keyboardView)
-            centerHorizontally()
-            bottomMargin = dp(6)
-        })
         add(keyboardView, lParams(matchParent, wrapContent) {
             centerHorizontally()
             bottomOfParent()
+        })
+        /**
+         * Added after [keyboardView] so that it is drawn on top of it: the pill
+         * is anchored to the top edge of the keyboard and grows downwards over
+         * the letter keys as the transcript gets longer. It is not clickable,
+         * so touches still reach the keys underneath.
+         */
+        add(voiceIndicator.ui.root, lParams(wrapContent, wrapContent) {
+            topToTop = keyboardView.id
+            centerHorizontally()
         })
         add(popup.root, lParams(matchParent, matchParent) {
             centerVertically()
@@ -295,6 +303,11 @@ class InputView(
         windowManager.view.updateLayoutParams {
             height = keyboardHeightPx
         }
+        // reserve the keyboard's bottom row (the microphone key) for the voice
+        // input preview pill
+        voiceIndicator.setAvailableHeight(
+            keyboardHeightPx - keyboardHeightPx / TextKeyboard.Layout.size
+        )
         bottomPaddingSpace.updateLayoutParams {
             height = keyboardBottomPaddingPx
         }

@@ -62,6 +62,13 @@ class VoiceInputIndicatorComponent :
         ui.updatePartial(text)
     }
 
+    /**
+     * Tells the pill how much vertical room it has before the record key.
+     */
+    fun setAvailableHeight(availableHeightPx: Int) {
+        ui.setAvailableHeight(availableHeightPx)
+    }
+
     private fun startTicker() {
         stopTicker()
         ticker = service.lifecycleScope.launch {
