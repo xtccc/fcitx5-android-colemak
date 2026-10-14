@@ -25,6 +25,7 @@ import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.GestureType
 import org.fcitx.fcitx5.android.input.keyboard.CustomGestureView.OnGestureListener
 import org.fcitx.fcitx5.android.input.popup.PopupAction
 import org.fcitx.fcitx5.android.input.popup.PopupActionListener
+import org.fcitx.fcitx5.android.input.voice.VoiceInputState
 import splitties.dimensions.dp
 import splitties.views.dsl.constraintlayout.above
 import splitties.views.dsl.constraintlayout.below
@@ -181,6 +182,17 @@ abstract class BaseKeyboard(
                         }
                         else -> false
                     }
+                }
+            } else if (def is VoiceInputKey) {
+                // long press starts push-to-talk, releasing the key stops it.
+                // always return false so that a plain tap still fires the click
+                // (on release after a long press, the click is suppressed by
+                // CustomGestureView itself via longPressTriggered)
+                onGestureListener = OnGestureListener { _, event ->
+                    if (event.type == GestureType.Up) {
+                        onAction(KeyAction.VoiceInputPushToTalkStopAction)
+                    }
+                    false
                 }
             } else if (def is BackspaceKey) {
                 swipeEnabled = true
@@ -496,6 +508,10 @@ abstract class BaseKeyboard(
     }
 
     open fun onInputMethodUpdate(ime: InputMethodEntry) {
+        // do nothing by default
+    }
+
+    open fun onVoiceInputStateUpdate(state: VoiceInputState) {
         // do nothing by default
     }
 

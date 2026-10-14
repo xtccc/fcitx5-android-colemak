@@ -40,6 +40,8 @@ import org.fcitx.fcitx5.android.input.picker.emoticonPicker
 import org.fcitx.fcitx5.android.input.picker.symbolPicker
 import org.fcitx.fcitx5.android.input.popup.PopupComponent
 import org.fcitx.fcitx5.android.input.preedit.PreeditComponent
+import org.fcitx.fcitx5.android.input.voice.VoiceInputComponent
+import org.fcitx.fcitx5.android.input.voice.VoiceInputIndicatorComponent
 import org.fcitx.fcitx5.android.input.wm.InputWindowManager
 import org.fcitx.fcitx5.android.utils.unset
 import org.fcitx.fcitx5.android.utils.windowManager
@@ -103,6 +105,8 @@ class InputView(
     private val preeditEmptyState = PreeditEmptyStateComponent()
     private val preedit = PreeditComponent()
     private val commonKeyActionListener = CommonKeyActionListener()
+    private val voiceInput = VoiceInputComponent()
+    private val voiceIndicator = VoiceInputIndicatorComponent()
     private val windowManager = InputWindowManager()
     private val kawaiiBar = KawaiiBarComponent()
     private val horizontalCandidate = HorizontalCandidateComponent()
@@ -124,6 +128,8 @@ class InputView(
         scope += preeditEmptyState
         scope += preedit
         scope += commonKeyActionListener
+        scope += voiceInput
+        scope += voiceIndicator
         scope += windowManager
         scope += kawaiiBar
         scope += horizontalCandidate
@@ -267,6 +273,11 @@ class InputView(
             above(keyboardView)
             centerHorizontally()
         })
+        add(voiceIndicator.ui.root, lParams(wrapContent, wrapContent) {
+            above(keyboardView)
+            centerHorizontally()
+            bottomMargin = dp(6)
+        })
         add(keyboardView, lParams(matchParent, wrapContent) {
             centerHorizontally()
             bottomOfParent()
@@ -377,6 +388,13 @@ class InputView(
         broadcaster.onSelectionUpdate(start, end)
     }
 
+    /**
+     * Stop an in-progress voice input session, e.g. when the keyboard is dismissed.
+     */
+    fun cancelVoiceInput() {
+        voiceInput.cancel()
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
     fun handleInlineSuggestions(response: InlineSuggestionsResponse): Boolean {
         return kawaiiBar.handleInlineSuggestions(response)
@@ -385,6 +403,7 @@ class InputView(
     override fun onDetachedFromWindow() {
         advancedPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
         keyboardPrefs.unregisterOnChangeListener(onKeyboardSizeChangeListener)
+        voiceInput.destroy()
         // clear DynamicScope, implies that InputView should not be attached again after detached.
         scope.clear()
         super.onDetachedFromWindow()

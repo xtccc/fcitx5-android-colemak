@@ -317,4 +317,11 @@
     <string name="keyboard_height_percent_base">Keyboard height percent base</string>
     <string name="display_metrics">Display metrics (Resources.getDisplayMetrics)</string>
     <string name="real_size">Real size (Display.getRealSize)</string>
+    <string name="voice_input">Voice input</string>
+    <string name="voice_input_recording">Recording %1$s</string>
+    <string name="voice_input_recognizing">Recognizing…</string>
+    <string name="voice_input_no_speech">No speech detected</string>
+    <string name="voice_input_network_error">Network error, please retry</string>
+    <string name="voice_input_need_permission">Microphone permission is required for voice input</string>
+    <string name="voice_input_error">Voice input failed</string>
 </resources>

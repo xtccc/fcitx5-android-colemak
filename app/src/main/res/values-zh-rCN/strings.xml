@@ -317,4 +317,11 @@
     <string name="keyboard_height_percent_base">键盘高度百分比</string>
     <string name="display_metrics">显示指标 (Resources.getDisplayMetrics)</string>
     <string name="real_size">真实尺寸 (Display.getRealSize)</string>
+    <string name="voice_input">语音输入</string>
+    <string name="voice_input_recording">正在录音中 %1$s</string>
+    <string name="voice_input_recognizing">识别中…</string>
+    <string name="voice_input_no_speech">没有识别到语音</string>
+    <string name="voice_input_network_error">网络错误，请重试</string>
+    <string name="voice_input_need_permission">语音输入需要麦克风权限</string>
+    <string name="voice_input_error">语音识别失败</string>
 </resources>

@@ -40,4 +40,13 @@ sealed class KeyAction {
     data class PickerSwitchAction(val key: PickerWindow.Key? = null) : KeyAction()
 
     data object SpaceLongPressAction : KeyAction()
+
+    /** Tap the microphone key: start recording, or stop and commit. */
+    data object VoiceInputToggleAction : KeyAction()
+
+    /** Hold the microphone key: start recording while held. */
+    data object VoiceInputPushToTalkStartAction : KeyAction()
+
+    /** Release the microphone key: stop recording and commit. */
+    data object VoiceInputPushToTalkStopAction : KeyAction()
 }

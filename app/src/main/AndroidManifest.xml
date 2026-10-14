@@ -13,6 +13,8 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- remove intent queries merged from library manifest (namely Android-Image-Cropper) -->
     <queries tools:node="removeAll" />
@@ -23,6 +25,11 @@
         </intent>
         <intent>
             <action android:name="android.view.InputMethod" />
+        </intent>
+        <!-- needed so that SpeechRecognizer.isRecognitionAvailable() can see
+             the system speech recognition service under package visibility rules -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
         </intent>
     </queries>
 
@@ -51,6 +58,12 @@
             android:name=".ui.setup.SetupActivity"
             android:exported="false"
             android:launchMode="singleTask" />
+        <activity
+            android:name=".input.voice.VoiceInputPermissionActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".ui.main.LogActivity"
             android:directBootAware="true"

@@ -245,6 +245,25 @@ class SpaceKey : KeyDef(
     )
 )
 
+/**
+ * Microphone key which triggers the system speech recognition service
+ * (see [org.fcitx.fcitx5.android.input.voice.VoiceInputComponent]).
+ *
+ * Tap to start/stop recording, hold for push-to-talk.
+ */
+class VoiceInputKey(percentWidth: Float = 0f) : KeyDef(
+    Appearance.Image(
+        src = R.drawable.ic_baseline_keyboard_voice_24,
+        percentWidth = percentWidth,
+        variant = Variant.Normal,
+        viewId = R.id.button_voice
+    ),
+    setOf(
+        Behavior.Press(KeyAction.VoiceInputToggleAction),
+        Behavior.LongPress(KeyAction.VoiceInputPushToTalkStartAction)
+    )
+)
+
 class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
     Appearance.Image(
         src = R.drawable.ic_baseline_keyboard_return_24,

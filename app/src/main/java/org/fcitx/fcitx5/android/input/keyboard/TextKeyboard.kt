@@ -6,6 +6,7 @@ package org.fcitx.fcitx5.android.input.keyboard
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.View
 import androidx.annotation.Keep
 import androidx.core.view.allViews
@@ -17,6 +18,7 @@ import org.fcitx.fcitx5.android.data.prefs.AppPrefs
 import org.fcitx.fcitx5.android.data.prefs.ManagedPreference
 import org.fcitx.fcitx5.android.data.theme.Theme
 import org.fcitx.fcitx5.android.input.popup.PopupAction
+import org.fcitx.fcitx5.android.input.voice.VoiceInputState
 import splitties.views.imageResource
 
 @SuppressLint("ViewConstructor")
@@ -73,6 +75,9 @@ class TextKeyboard(
                 SpaceKey(),
                 SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
                 ReturnKey()
+            ),
+            listOf(
+                VoiceInputKey()
             )
         )
     }
@@ -83,6 +88,7 @@ class TextKeyboard(
     val lang: ImageKeyView by lazy { findViewById(R.id.button_lang) }
     val space: TextKeyView by lazy { findViewById(R.id.button_space) }
     val `return`: ImageKeyView by lazy { findViewById(R.id.button_return) }
+    val voice: ImageKeyView by lazy { findViewById(R.id.button_voice) }
 
     private val showLangSwitchKey = AppPrefs.getInstance().keyboard.showLangSwitchKey
 
@@ -94,6 +100,7 @@ class TextKeyboard(
     private val keepLettersUppercase by AppPrefs.getInstance().keyboard.keepLettersUppercase
 
     init {
+        voice.contentDescription = context.getString(R.string.voice_input)
         updateLangSwitchKey(showLangSwitchKey.getValue())
         showLangSwitchKey.registerOnChangeListener(showLangSwitchKeyListener)
     }
@@ -158,6 +165,16 @@ class TextKeyboard(
 
     override fun onReturnDrawableUpdate(returnDrawable: Int) {
         `return`.img.imageResource = returnDrawable
+    }
+
+    override fun onVoiceInputStateUpdate(state: VoiceInputState) {
+        voice.img.imageTintList = ColorStateList.valueOf(
+            when (state) {
+                VoiceInputState.Idle -> theme.keyTextColor
+                VoiceInputState.Listening -> theme.accentKeyTextColor
+                VoiceInputState.Recognizing -> theme.altKeyTextColor
+            }
+        )
     }
 
     override fun onPunctuationUpdate(mapping: Map<String, String>) {
