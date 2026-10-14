@@ -72,6 +72,9 @@ sealed class SettingsRoute : Parcelable {
     data object VirtualKeyboard : SettingsRoute()
 
     @Serializable
+    data object VoiceReplacement : SettingsRoute()
+
+    @Serializable
     data object CandidatesWindow : SettingsRoute()
 
     @Serializable
@@ -209,6 +212,9 @@ sealed class SettingsRoute : Parcelable {
             }
             fragment<KeyboardSettingsFragment, VirtualKeyboard> {
                 label = ctx.getString(R.string.virtual_keyboard)
+            }
+            fragment<VoiceReplacementFragment, VoiceReplacement> {
+                label = ctx.getString(R.string.voice_replacement)
             }
             fragment<CandidatesSettingsFragment, CandidatesWindow> {
                 label = ctx.getString(R.string.candidates_window)

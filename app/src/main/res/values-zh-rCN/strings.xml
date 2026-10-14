@@ -324,4 +324,6 @@
     <string name="voice_input_network_error">网络错误，请重试</string>
     <string name="voice_input_need_permission">语音输入需要麦克风权限</string>
     <string name="voice_input_error">语音识别失败</string>
+    <string name="voice_replacement">语音替换</string>
+    <string name="voice_replacement_hint">原词=替换词</string>
 </resources>

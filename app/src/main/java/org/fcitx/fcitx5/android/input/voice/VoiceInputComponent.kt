@@ -18,6 +18,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.fcitx.fcitx5.android.R
+import org.fcitx.fcitx5.android.data.voicereplacement.VoiceReplacementManager
+import org.fcitx.fcitx5.android.data.voicereplacement.VoiceTextReplacer
 import org.fcitx.fcitx5.android.input.broadcast.InputBroadcaster
 import org.fcitx.fcitx5.android.input.dependency.inputMethodService
 import org.fcitx.fcitx5.android.input.voice.doubao.DoubaoAsrSession
@@ -91,13 +93,23 @@ class VoiceInputComponent :
         override fun onSessionStarted() = Unit
 
         override fun onPartial(text: String) {
-            onMainThread { broadcaster.onVoiceInputPartialText(text) }
+            // pure transform, recomputed from scratch on every update: the
+            // engine re-scores sentences and re-sends the whole segment text
+            val replaced = replacer.apply(text)
+            onMainThread { broadcaster.onVoiceInputPartialText(replaced) }
         }
 
         override fun onFailed(message: String) {
             Timber.w("VoiceInputComponent: %s", message)
         }
     }
+
+    /**
+     * Replacement dictionary snapshot, reloaded for every session so edits in
+     * the settings screen apply from the next recording on.
+     */
+    @Volatile
+    private var replacer: VoiceTextReplacer = VoiceTextReplacer.Empty
 
     /**
      * Tap: start recording, or stop and commit when already recording.
@@ -150,6 +162,7 @@ class VoiceInputComponent :
         var asr: DoubaoAsrSession? = null
         var capture: Thread? = null
         try {
+            replacer = VoiceReplacementManager.replacer()
             val identity = DoubaoIdentity.ensure(service)
             val created = DoubaoAsrSession(identity, sessionListener)
             asr = created
@@ -174,7 +187,7 @@ class VoiceInputComponent :
                 toast(R.string.voice_input_no_speech)
                 return
             }
-            commit(text)
+            commit(replacer.apply(text))
         } catch (t: Throwable) {
             Timber.w(t, "VoiceInputComponent: session failed")
             if (!discardResult.get()) {
