@@ -82,55 +82,95 @@ abstract class BaseKeyboard(
     private val keyRows: List<ConstraintLayout>
 
     /**
+     * Keys that span multiple rows. They are direct children of this keyboard
+     * instead of belonging to a row, so they also need to be matched manually
+     * in [findTargetChild].
+     */
+    private val spanningKeys = mutableListOf<KeyView>()
+
+    /**
      * HashMap of [PointerId (Int)][MotionEvent.getPointerId] to [KeyView]
      */
     private val touchTarget = hashMapOf<Int, View>()
 
     init {
         isMotionEventSplittingEnabled = true
-        keyRows = keyLayout.map { row ->
-            val keyViews = row.map(::createKeyView)
-            constraintLayout Row@{
+
+        // Rows covered by a key spanning multiple rows need the key's
+        // horizontal slot kept free at their end.
+        val spanReservations = FloatArray(keyLayout.size)
+        keyLayout.forEachIndexed { rowIndex, row ->
+            row.forEachIndexed { index, def ->
+                if (def.rowSpan <= 1) return@forEachIndexed
+                require(index == row.size - 1) {
+                    "A key spanning multiple rows must be the last key of its row"
+                }
+                require(rowIndex + def.rowSpan <= keyLayout.size) {
+                    "A key cannot span beyond the last row"
+                }
+                for (i in 1 until def.rowSpan) {
+                    spanReservations[rowIndex + i] += def.appearance.percentWidth
+                }
+            }
+        }
+
+        val spanningDefs = mutableListOf<Pair<Int, KeyDef>>()
+        keyRows = keyLayout.mapIndexed { rowIndex, row ->
+            // cells are either real keys or invisible placeholders
+            val cells = row.map { def ->
+                val view = if (def.rowSpan > 1) {
+                    // the real key view is added after the rows, keep its slot free
+                    spanningDefs += rowIndex to def
+                    View(context)
+                } else {
+                    createKeyView(def)
+                }
+                view to def.appearance.percentWidth
+            } + if (spanReservations[rowIndex] > 0f) {
+                listOf(View(context) to spanReservations[rowIndex])
+            } else {
+                emptyList()
+            }
+            constraintLayout {
                 var totalWidth = 0f
-                keyViews.forEachIndexed { index, view ->
+                cells.forEachIndexed { index, (view, percentWidth) ->
                     add(view, lParams {
                         centerVertically()
                         if (index == 0) {
                             leftOfParent()
                             horizontalChainStyle = LayoutParams.CHAIN_PACKED
                         } else {
-                            leftToRightOf(keyViews[index - 1])
+                            leftToRightOf(cells[index - 1].first)
                         }
-                        if (index == keyViews.size - 1) {
+                        if (index == cells.size - 1) {
                             rightOfParent()
                             // for RTL
                             horizontalChainStyle = LayoutParams.CHAIN_PACKED
                         } else {
-                            rightToLeftOf(keyViews[index + 1])
+                            rightToLeftOf(cells[index + 1].first)
                         }
-                        val def = row[index]
-                        matchConstraintPercentWidth = def.appearance.percentWidth
+                        matchConstraintPercentWidth = percentWidth
                     })
-                    row[index].appearance.percentWidth.let {
-                        // 0f means fill remaining space, thus does not need expanding
-                        totalWidth += if (it != 0f) it else 1f
-                    }
+                    // 0f means fill remaining space, thus does not need expanding
+                    totalWidth += if (percentWidth != 0f) percentWidth else 1f
                 }
-                if (expandKeypressArea && totalWidth < 1f) {
+                // expanding the keypress area only makes sense for rows of real keys
+                if (expandKeypressArea && totalWidth < 1f && cells.all { it.first is KeyView }) {
                     val free = (1f - totalWidth) / 2f
-                    keyViews.first().apply {
+                    (cells.first().first as KeyView).apply {
                         updateLayoutParams<LayoutParams> {
                             matchConstraintPercentWidth += free
                         }
-                        layoutMarginLeft = free / (row.first().appearance.percentWidth + free)
+                        layoutMarginLeft = free / (cells.first().second + free)
                     }
-                    keyViews.last().apply {
+                    (cells.last().first as KeyView).apply {
                         updateLayoutParams<LayoutParams> {
                             matchConstraintPercentWidth += free
                         }
-                        layoutMarginRight = free / (row.last().appearance.percentWidth + free)
+                        layoutMarginRight = free / (cells.last().second + free)
                     }
                 }
+                id = View.generateViewId()
             }
         }
         keyRows.forEachIndexed { index, row ->
@@ -141,6 +181,17 @@ abstract class BaseKeyboard(
                 else above(keyRows[index + 1])
                 centerHorizontally()
             })
+        }
+        // add row-spanning keys last so they are drawn (and touched) above the rows
+        spanningDefs.forEach { (rowIndex, def) ->
+            val view = createKeyView(def)
+            add(view, lParams {
+                topToTop = keyRows[rowIndex].id
+                bottomToBottom = keyRows[rowIndex + def.rowSpan - 1].id
+                rightOfParent()
+                matchConstraintPercentWidth = def.appearance.percentWidth
+            })
+            spanningKeys += view
         }
         spaceSwipeMoveCursor.registerOnChangeListener(spaceSwipeChangeListener)
     }
@@ -367,13 +418,13 @@ abstract class BaseKeyboard(
 
     private fun findTargetChild(x: Float, y: Float): View? {
         val y0 = y.roundToInt()
-        // assume all rows have equal height
-        val row = keyRows.getOrNull(y0 * keyRows.size / bounds.height()) ?: return null
         val x1 = x.roundToInt() + bounds.left
         val y1 = y0 + bounds.top
-        return row.children.find {
+        // assume all rows have equal height
+        val row = keyRows.getOrNull(y0 * keyRows.size / bounds.height())
+        return row?.children?.find {
             if (it !is KeyView) false else it.bounds.contains(x1, y1)
-        }
+        } ?: spanningKeys.find { it.bounds.contains(x1, y1) }
     }
 
     private fun transformMotionEventToChild(

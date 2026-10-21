@@ -11,7 +11,13 @@ import org.fcitx.fcitx5.android.data.InputFeedbacks
 open class KeyDef(
     val appearance: Appearance,
     val behaviors: Set<Behavior>,
-    val popup: Array<Popup>? = null
+    val popup: Array<Popup>? = null,
+    /**
+     * Number of keyboard rows this key occupies, starting from the row it is
+     * declared in. A key spanning multiple rows must be the last key of its
+     * row; its view is added after the rows so it can cover them.
+     */
+    val rowSpan: Int = 1
 ) {
     sealed class Appearance(
         val percentWidth: Float,

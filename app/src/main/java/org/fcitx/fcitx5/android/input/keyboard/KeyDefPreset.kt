@@ -264,7 +264,7 @@ class VoiceInputKey(percentWidth: Float = 0f) : KeyDef(
     )
 )
 
-class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
+class ReturnKey(percentWidth: Float = 0.15f, rowSpan: Int = 1) : KeyDef(
     Appearance.Image(
         src = R.drawable.ic_baseline_keyboard_return_24,
         percentWidth = percentWidth,
@@ -285,6 +285,7 @@ class ReturnKey(percentWidth: Float = 0.15f) : KeyDef(
             )
         )
     ),
+    rowSpan = rowSpan,
 )
 
 class ImageLayoutSwitchKey(

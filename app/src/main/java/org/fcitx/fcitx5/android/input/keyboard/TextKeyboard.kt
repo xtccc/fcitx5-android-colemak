@@ -74,7 +74,8 @@ class TextKeyboard(
                 CommaKey(0.1f, KeyDef.Appearance.Variant.Alternative),
                 SpaceKey(),
                 SymbolKey(".", 0.1f, KeyDef.Appearance.Variant.Alternative),
-                ReturnKey()
+                // tall search/return key, spanning this row and the voice row below
+                ReturnKey(rowSpan = 2)
             ),
             listOf(
                 VoiceInputKey()
